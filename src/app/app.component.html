@@ -4,7 +4,7 @@
     <input class="new-todo" autofocus autocomplete="off" placeholder="Que devez-vous faire?" [(ngModel)]="newTodo.title"
            (keyup)="addTodo($event)">
   </header>
-  <section class="main" *ngIf="filterTodos.length > 0">
+  <section class="main" *ngIf="filterTodos!= null && filterTodos.length > 0">
     <input  class="toggle-all" type="checkbox" >
     <ul class="todo-list">
       <li class="todo" *ngFor="let todo of filterTodos" [ngClass]="{'completed': todo.status, 'editing': todo.id == editingIndex}"> <!--, 'editing': !todo.status}-->

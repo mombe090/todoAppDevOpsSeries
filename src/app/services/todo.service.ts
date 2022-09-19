@@ -2,51 +2,82 @@ import {HttpClient} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {TodoModel} from '../model/todo.model';
+import {environment} from '../../environments/environment'
 
 @Injectable({
   providedIn: 'root'
 })
 export class TodoService {
   private todos: BehaviorSubject<TodoModel[]> = new BehaviorSubject<TodoModel[]>(null);
-  $todos = this.todos.asObservable();
+    $todos = this.todos.asObservable();
 
-  localTodo: TodoModel[] = [];  // local data avant límplementation du backend
+    constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) {}
+    getAllTodos() {
+      this.http.get(`${environment.todoUrl}/todos`).subscribe(
+        (response: TodoModel[]) => {
+          this.todos.next(response['data']);
+        }
+      );
+      return this.$todos;
+    }
 
-  getAllTodos() {
-    this.todos.next(this.localTodo);
-    return this.$todos;
-  }
+    getTodo(id: number) {
+      this.http.get(`${environment.todoUrl}/todos/` + id).subscribe(
+        (response: TodoModel) => {
+          return response;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }
 
-  getTodo(id: number) {
-    return this.localTodo.filter((t: TodoModel) => {
-      return t.id === id;
-    });
-  }
+    saveTodo(todo: TodoModel) {
+      this.http.post(`${environment.todoUrl}/todos`, todo).subscribe(
+        (response: TodoModel) => {
+          this.getAllTodos();
+          return response;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }
 
-  saveTodo(todo: TodoModel) {
-    todo.isEditing = false;
-    todo.id = 20;
-    this.localTodo.push(todo);
-    this.getAllTodos();
-  }
+    updateTodo(todo: TodoModel) {
+      this.http.put(`${environment.todoUrl}/todos/${todo.id}`, todo).subscribe(
+        (response: TodoModel) => {
+          this.getAllTodos();
+          return response;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }
 
-  removeTodo(todo: TodoModel) {
-    this.localTodo = this.localTodo.filter((t: TodoModel) => {
-      return t.id !== todo.id;
-    });
-    this.todos.next(this.localTodo);
-  }
+    removeTodo(todo: TodoModel) {
+      this.http.delete(`${environment.todoUrl}/todos/${todo.id}`).subscribe(
+        (response: any) => {
+          this.getAllTodos();
+          return response;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }
 
-  updateTodo(todo: TodoModel) {
-    this.localTodo.find((t: TodoModel) => {
-      return t.id === todo.id;
-    }).title = todo.title;
-  }
-
-  removeAllTodo() {
-    this.localTodo = [];
-    this.todos.next(this.localTodo);
-  }
+    removeAllTodo() {
+      this.http.delete(`${environment.todoUrl}/todos`).subscribe(
+        (response: string) => {
+          this.getAllTodos();
+          return response;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }
 }

@@ -4,7 +4,7 @@ export class TodoModel {
     public status: boolean,
     public createdAt?: string,
     public updatedAt?: string,
-    public id?: number,
+    public id?: string,
     public isEditing = false
   ) {}
 }
